@@ -8,28 +8,27 @@ on: [push, pull_request]
 
 jobs:
   build:
-    strategy:
-      matrix:
-        java: [
-          "17", # Old LTS
-          "21" # Current LTS
-          ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: gradle/wrapper-validation-action@v3
-      - name: Setup Java JDK
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: ${{ matrix.java }}
-      - name: Grant execute permission
-        run: chmod +x ./gradlew
+          java-version: 21
+
       - name: Build with Gradle
         run: ./gradlew build
-      - if: matrix.java == '17'
-        name: Upload a Build Artifact
+
+      - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with: 
-          name: modid
+          name: template-mod
           path: build/libs/*.jar
